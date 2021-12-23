@@ -24,8 +24,9 @@ public class TimeslotStorage {
         return Optional.of(new TimeslotWithMessage(timeslot, message));
     }
 
-    public void addTimeslot(Timeslot timeslot, String message) {
+    public TimeslotWithMessage addTimeslot(Timeslot timeslot, String message) {
         storage.put(timeslot, message);
+        return new TimeslotWithMessage(timeslot, message);
     }
 
     public void removeTimeslot(Timeslot timeslot) {

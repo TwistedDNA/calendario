@@ -13,7 +13,8 @@ public class TimeslotService {
     private TimeslotStorage storage;
 
     public Optional<TimeslotWithMessage> bookTimeslot(Timeslot timeslot, String message) {
-        return storage.findTimeslot(timeslot);
+        Optional<TimeslotWithMessage> found = storage.findTimeslot(timeslot);
+        return  Optional.of(found.orElse(storage.addTimeslot(timeslot,message)));
     }
 
     public void cancelTimeslotBooking(Timeslot timeslot) {

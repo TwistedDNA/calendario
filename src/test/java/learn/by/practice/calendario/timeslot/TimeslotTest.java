@@ -15,7 +15,7 @@ public class TimeslotTest {
         LocalDateTime start =  LocalDateTime.of(2021,12,2,7,58);
         LocalDateTime end =  start.plusMinutes(TIMESLOT_DURATION_MINUTES);
 
-        Exception exception = assertThrows(InvalidTimeSlotException.class, () -> {new Timeslot(start, end);});
+        Exception exception = assertThrows(InvalidTimeSlotException.class, () -> new Timeslot(start, end));
         assertTrue(exception.getMessage().contains("Start timestamp minutes must be rounded to"));
     }
 
@@ -24,16 +24,16 @@ public class TimeslotTest {
         LocalDateTime start =  LocalDateTime.of(2021,12,2,8,0);
         LocalDateTime end =  start.plusMinutes(TIMESLOT_DURATION_MINUTES-1);
 
-        Exception exception = assertThrows(InvalidTimeSlotException.class, () -> {new Timeslot(start, end);});
+        Exception exception = assertThrows(InvalidTimeSlotException.class, () -> new Timeslot(start, end));
         assertTrue(exception.getMessage().contains("End timestamp minutes must be rounded to "));
     }
 
     @Test
     public void shouldThrowExceptionOnLongerTimeslot(){
         LocalDateTime start =  LocalDateTime.of(2021,12,2,8,0);
-        LocalDateTime end =  start.plusMinutes(TIMESLOT_DURATION_MINUTES+5);
+        LocalDateTime end =  start.plusMinutes(TIMESLOT_DURATION_MINUTES * 2);
 
-        Exception exception = assertThrows(InvalidTimeSlotException.class, () -> {new Timeslot(start, end);});
+        Exception exception = assertThrows(InvalidTimeSlotException.class, () -> new Timeslot(start, end));
         assertTrue(exception.getMessage().contains("Timeslot duration should be "));
     }
 

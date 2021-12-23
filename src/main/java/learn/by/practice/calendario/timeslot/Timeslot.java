@@ -10,14 +10,17 @@ public class Timeslot {
     public Timeslot(LocalDateTime start, LocalDateTime end)  {
         if(start.getMinute() % TIMESLOT_DURATION_MINUTES != 0){
             String errorMessage = String.format("Start timestamp minutes must be rounded to %d minutes. Actual: %d",TIMESLOT_DURATION_MINUTES, start.getMinute());
+            // TODO log
             throw new InvalidTimeSlotException(errorMessage);
         }
         if(end.getMinute() % TIMESLOT_DURATION_MINUTES != 0){
             String errorMessage = String.format("End timestamp minutes must be rounded to %d minutes. Actual: %d", TIMESLOT_DURATION_MINUTES, end.getMinute());
+            // TODO log
             throw new InvalidTimeSlotException(errorMessage);
         }
         if(!start.plusMinutes(TIMESLOT_DURATION_MINUTES).equals(end)){
             String errorMessage = String.format("Timeslot duration should be %d minutes.",TIMESLOT_DURATION_MINUTES);
+            // TODO log
             throw new InvalidTimeSlotException(errorMessage);
         }
         this.start = start;

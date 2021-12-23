@@ -3,14 +3,12 @@ package learn.by.practice.calendario.timeslot;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -31,18 +29,23 @@ public class TimeslotController {
     ObjectMapper om;
 
     @PostMapping(BOOK_URL)
-    public TimeslotWithMessage bookTimeslot(@RequestBody LocalDateTime start, @RequestBody LocalDateTime end, @RequestBody String message) {
+    public ResponseEntity<String> bookTimeslot(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+                                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+                                                            @RequestBody String message) {
         try {
             Timeslot timeslot = new Timeslot(start, end);
-            Optional<TimeslotWithMessage> saved = timeslotService.bookTimeslot(timeslot, message);
-            return saved.orElse(null); //TODO return "already booked" status
-        } catch (InvalidTimeSlotException e) {
-            return null; //TODO return "invalid parameters" status
+            Optional<TimeslotWithMessage> booked = timeslotService.bookTimeslot(timeslot, message);
+            String payload = booked.isEmpty() ? "" : om.writeValueAsString(booked.get());
+            return ResponseEntity.accepted().contentType(MediaType.APPLICATION_JSON).body(payload);
+        } catch (InvalidTimeSlotException | JsonProcessingException e) {
+            // TODO log
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @PostMapping(CANCEL_URL)
-    public void cancelTimeslotBooking(@RequestBody LocalDateTime start, @RequestBody LocalDateTime end) {
+    public void cancelTimeslotBooking(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+                                      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         Timeslot timeslot = new Timeslot(start, end);
         timeslotService.cancelTimeslotBooking(timeslot);
     }
