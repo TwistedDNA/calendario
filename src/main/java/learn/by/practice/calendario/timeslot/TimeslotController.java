@@ -30,8 +30,8 @@ public class TimeslotController {
 
     @PostMapping(BOOK_URL)
     public ResponseEntity<String> bookTimeslot(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-                                                            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
-                                                            @RequestBody String message) {
+                                               @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end,
+                                               @RequestBody String message) {
         try {
             Timeslot timeslot = new Timeslot(start, end);
             Optional<TimeslotWithMessage> booked = timeslotService.bookTimeslot(timeslot, message);
@@ -44,10 +44,17 @@ public class TimeslotController {
     }
 
     @PostMapping(CANCEL_URL)
-    public void cancelTimeslotBooking(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-                                      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
-        Timeslot timeslot = new Timeslot(start, end);
-        timeslotService.cancelTimeslotBooking(timeslot);
+    public ResponseEntity<String> cancelTimeslotBooking(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+                                                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        try {
+            Timeslot timeslot = new Timeslot(start, end);
+            Optional<TimeslotWithMessage> canceled = timeslotService.cancelTimeslotBooking(timeslot);
+            String payload = canceled.isEmpty() ? "" : om.writeValueAsString(canceled.get());
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(payload);
+        } catch (InvalidTimeSlotException | JsonProcessingException e) {
+            // TODO log
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
     @GetMapping(LIST_URI)

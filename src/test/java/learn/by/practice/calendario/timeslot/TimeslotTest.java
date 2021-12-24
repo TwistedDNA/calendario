@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 
 import static learn.by.practice.calendario.timeslot.Timeslot.TIMESLOT_DURATION_MINUTES;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TimeslotTest {
 
@@ -43,6 +42,7 @@ public class TimeslotTest {
         LocalDateTime end =  start.plusMinutes(TIMESLOT_DURATION_MINUTES);
 
         Timeslot timeslot = new Timeslot(start, end);
+        assertNotNull(timeslot);
     }
 
 }

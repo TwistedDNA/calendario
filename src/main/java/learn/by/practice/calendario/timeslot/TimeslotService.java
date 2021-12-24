@@ -17,8 +17,8 @@ public class TimeslotService {
         return  Optional.of(found.orElse(storage.addTimeslot(timeslot,message)));
     }
 
-    public void cancelTimeslotBooking(Timeslot timeslot) {
-        storage.removeTimeslot(timeslot);
+    public Optional<TimeslotWithMessage> cancelTimeslotBooking(Timeslot timeslot) {
+        return storage.removeTimeslot(timeslot);
     }
 
     public List<TimeslotWithMessage> listAllBookedTimeslots() {

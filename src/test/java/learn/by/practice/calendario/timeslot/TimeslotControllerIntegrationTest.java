@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import static learn.by.practice.calendario.timeslot.TimeslotController.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,8 +31,30 @@ public class TimeslotControllerIntegrationTest {
     ObjectMapper om;
 
     @Test
+    public void shouldRespondWithBadRequestToIncorrectTimeslot() throws Exception {
+        postWithFaultyTimeslot(TIMESLOTS_URL + BOOK_URL);
+        postWithFaultyTimeslot(TIMESLOTS_URL + CANCEL_URL);
+    }
+    private void postWithFaultyTimeslot(String url) throws Exception {
+        LocalDateTime start = LocalDateTime.of(2021, 12, 23, 16, 15);
+        LocalDateTime end = LocalDateTime.of(2021, 12, 23, 16, 16);
+
+        String message = "Fifteen minute stretch session";
+        this.mockMvc.perform(
+                        post(url)
+                                .param("start", DateTimeFormatter.ISO_DATE_TIME.format(start))
+                                .param("end", DateTimeFormatter.ISO_DATE_TIME.format(end))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(om.writeValueAsString(message))
+                )
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
     public void shouldReturnEmptyList() throws Exception {
-        String emptyList = om.writeValueAsString(new ArrayList());
+
+        String emptyList = om.writeValueAsString(new ArrayList<>());
         System.out.println("Empty list:" + emptyList);
         this.mockMvc.perform(
                         get(TIMESLOTS_URL + LIST_URI))
@@ -56,10 +77,35 @@ public class TimeslotControllerIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(om.writeValueAsString(message))
                 )
-                .andDo(print())
                 .andExpect(status().isAccepted())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(expectedResponse));
 
+    }
+
+    @Test
+    public void shouldBookAndCancelBookedTimeslot() throws Exception {
+
+        LocalDateTime start = LocalDateTime.of(2021, 12, 24, 0, 45);
+        LocalDateTime end = LocalDateTime.of(2021, 12, 24, 1, 0);
+
+        String message = "Fifteen minute stretch session";
+        String expectedResponse = "{\"start\":\"2021-12-24T00:45:00\",\"end\":\"2021-12-24T01:00:00\",\"message\":\"\\\"Fifteen minute stretch session\\\"\"}";
+        this.mockMvc.perform(
+                post(TIMESLOTS_URL + BOOK_URL)
+                        .param("start", DateTimeFormatter.ISO_DATE_TIME.format(start))
+                        .param("end", DateTimeFormatter.ISO_DATE_TIME.format(end))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(message))
+        ).andReturn();
+
+        this.mockMvc.perform(
+                        post(TIMESLOTS_URL + CANCEL_URL)
+                                .param("start", DateTimeFormatter.ISO_DATE_TIME.format(start))
+                                .param("end", DateTimeFormatter.ISO_DATE_TIME.format(end))
+                )
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(expectedResponse));
     }
 }

@@ -29,8 +29,13 @@ public class TimeslotStorage {
         return new TimeslotWithMessage(timeslot, message);
     }
 
-    public void removeTimeslot(Timeslot timeslot) {
+    public Optional<TimeslotWithMessage> removeTimeslot(Timeslot timeslot) {
+        if(!storage.containsKey(timeslot)){
+            return Optional.empty();
+        }
+        String message = storage.get(timeslot);
         storage.remove(timeslot);
+        return Optional.of(new TimeslotWithMessage(timeslot, message));
     }
 
     public List<TimeslotWithMessage> listTimeslots() {
